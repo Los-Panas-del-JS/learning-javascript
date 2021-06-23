@@ -1,0 +1,9 @@
+{
+  "name": "learning",
+  "version": "1.0.0",
+  "description": "Los Panas del JS learning javascript",
+  "repository": "git@github.com:Los-Panas-del-JS/learning.git",
+  "author": "diegodisant <developerdiego0@gmail.com>",
+  "license": "MIT",
+  "private": true
+}
