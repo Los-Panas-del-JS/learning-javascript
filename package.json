@@ -5,5 +5,8 @@
   "repository": "git@github.com:Los-Panas-del-JS/learning.git",
   "author": "diegodisant <developerdiego0@gmail.com>",
   "license": "MIT",
-  "private": true
+  "private": true,
+  "scripts": {
+    "run-js": "exec_script() { js src/$1; }; exec_script"
+  }
 }
