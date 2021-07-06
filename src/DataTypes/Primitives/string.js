@@ -21,3 +21,23 @@ console.log('Are two strings equals?', (comparedString === myMessage)); // fast 
 const replacedValue = 'own value';
 
 console.log(`I am replacing value replacedValue with ${replacedValue}`);
+
+/**
+ * String operations
+ */
+
+console.log();
+console.log('String operations');
+console.log('lower case', myMessage.toLowerCase());
+console.log('upper case', myMessage.toUpperCase());
+console.log('trimming', myMessage.concat('a a a aaaa a        ').trim());
+console.log('slice', myMessage.slice(1, 6));
+console.log('indexOf', myMessage.indexOf('a'));
+console.log('reverse', myMessage.split('').reverse().join(''));
+
+/**
+ * String conversion
+ */
+const number = 121;
+
+console.log(number.valueOf());
