@@ -3,6 +3,10 @@ const myString = 'this is a long long text 3981893 &(! "<)()A 7719 9182 91';
 const alphaRegex = /[A-Za-z\s]/g;
 const alphaMatched = [...myString.matchAll(alphaRegex)];
 
+// [0 t h i s i s]
+// [t h i s i s]
+// ...[t h i s i s] = [[t], [h], [i], [s], [i], [s]]
+
 console.log('has alphanumerics', alphaRegex.test(myString));
 console.log(alphaMatched.join(''));
 

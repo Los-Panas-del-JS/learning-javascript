@@ -46,7 +46,7 @@ for (let keyIndex = 0; keyIndex < objectKeys.length; keyIndex += 1) {
  */
 myObject['myNewKey'] = 'asifjiuasdjufjasif'; // UNSAFE
 
-console.log('Unsafe access and assignment', myObject['myNewKey']);
+console.log('Unsafe access and assignment', myObject.myNewKey);
 
 myObject.myNewKey2 = 'oiafijasdifsfoi'; // SAFEST
 

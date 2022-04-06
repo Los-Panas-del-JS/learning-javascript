@@ -37,6 +37,7 @@ const reduceResult = oddNumbers.reduce(sumReducer);
 console.log('Reduce result:', reduceResult);
 
 /**
+ * https://en.wikipedia.org/wiki/Primality_test
  * @param {number} curValue
  * @returns {boolean}
  */

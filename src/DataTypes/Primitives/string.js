@@ -1,5 +1,27 @@
 const myMessage = 'I am learning javascript';
 
+/**
+ * var:
+ * let:
+ * const:
+ * 
+ * var myVar = ObjectStreamer.stream(Stream.from(SERVER, (streamOffset, closed) => {
+ *  let localOffset = streamOffset.slice(0, 4);
+ * 
+ *  ...
+ * 
+ * }));
+ * 
+ * const stream = Stream.from(
+ *   SERVER,
+ *   streamReader.read
+ * );
+ * 
+ * var myVar = ObjectStramer.stream(stream);
+ * 
+ * 
+ */
+
 console.log(myMessage);
 
 /**
@@ -34,6 +56,17 @@ console.log('trimming', myMessage.concat('a a a aaaa a        ').trim());
 console.log('slice', myMessage.slice(1, 6));
 console.log('indexOf', myMessage.indexOf('a'));
 console.log('reverse', myMessage.split('').reverse().join(''));
+
+const stream = 'jsdjfasf  jijsfias jfsia message fisdjaifdios idshfaso afhios';
+const searchedStream = 'message';
+
+function hasString(searchString, message) {
+  return new Boolean(~message.indexOf(searchString));
+}
+
+console.log('Original message:', stream);
+console.log('Searched string:', searchedStream);
+console.log('Is the search string inside of message?', hasString(searchedStream, stream));
 
 /**
  * String conversion
