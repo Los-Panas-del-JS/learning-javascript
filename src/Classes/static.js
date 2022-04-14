@@ -1,28 +1,28 @@
-const STRING_REGEX = /^[A-Za-z]+$/g;
-const DIGIT_REGEX = /^\d+$/g;
-
-const TYPE_UNKNOWN = 'unknownToken';
-const TYPE_STRING = 'stringToken';
-const TYPE_DIGIT = 'digitToken';
-
-const REGEX_TYPE_MAP = {
-  stringToken: STRING_REGEX,
-  digitToken: DIGIT_REGEX,
-};
-
 class Token {
+  static stringRegex = /^[A-Za-z]+$/g;
+  static digitRegex = /^\d+$/g;
+
+  static typeUnknown = 'unknownType';
+  static typeDigit = 'digitToken';
+  static typeString = 'stringToken';
+
+  static regexTypeMap = {
+    digitToken: Token.digitRegex,
+    stringToken: Token.stringRegex,
+  };
+
   constructor(value) {
     this.value = value;
-    this.type = TYPE_UNKNOWN;
+    this.type = Token.typeUnknown;
 
     this.checkType();
   }
 
   checkType() {
     /** @constant {string} tokenType */
-    for (const tokenType in REGEX_TYPE_MAP) {
+    for (const tokenType in Token.regexTypeMap) {
       /** @constant {RegExp} tokenRegex */
-      const tokenRegex = REGEX_TYPE_MAP[tokenType];
+      const tokenRegex = Token.regexTypeMap[tokenType];
 
       if (!tokenRegex.test(this.value)) {
         continue;
@@ -37,11 +37,18 @@ class Token {
   }
 
   get isStringToken() {
-    return (this.type === TYPE_STRING);
+    return (this.type === Token.typeString);
   }
 
   get isDigitToken() {
-    return (this.type === TYPE_DIGIT);
+    return (this.type === Token.typeDigit);
+  }
+
+  /**
+   * @param {string} value
+   */
+  static isDigit(value) {
+    return Token.digitRegex.test(value);
   }
 }
 
@@ -61,17 +68,4 @@ unknownToken.printType();
 console.log(unknownToken.isDigitToken);
 console.log(unknownToken.isStringToken);
 
-class Square {
-  constructor(widht, height) {
-    this.widht = widht;
-    this.height = height;
-  }
-
-  get area() {
-    return this.widht * this.height;
-  }
-}
-
-const square = new Square(2, 2);
-
-console.log(square.area);
+console.log('Is digit?', Token.isDigit('281892'));
