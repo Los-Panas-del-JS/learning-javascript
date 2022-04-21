@@ -1,6 +1,5 @@
+/* eslint-disable max-classes-per-file */
 class AbstractToken {
-  static varRegex = /^[A-Za-z_]+\d*[A-Za-z_]*$/;
-
   /**
    * @param {string} value
    */
@@ -8,19 +7,16 @@ class AbstractToken {
     this.value = value;
   }
 
-  isVar() {
-    return AbstractToken
-      .varRegex
-      .test(this.value);
+  print() {
+    console.log(
+      this.constructor.name,
+      'with value:',
+      this.value,
+    );
   }
 }
 
 class Token extends AbstractToken {
-  static digitType = 'DIGIT';
-  static stringType = 'STRING';
-  static operatorType = 'OPERATOR';
-  static variableType = 'VARIABLE';
-
   /**
    * @param {string} value
    * @param {RegExp} regex
@@ -29,6 +25,12 @@ class Token extends AbstractToken {
     super(value);
 
     this.regex = regex;
+    this.digitType = 'DIGIT';
+    this.stringType = 'STRING';
+    this.operatorType = 'OPERATOR';
+    this.boolToken = 'BOOLEAN';
+    this.variableType = 'VARIABLE';
+    this.dataTypeType = 'DATATYPE';
   }
 
   /**
@@ -43,7 +45,20 @@ class Token extends AbstractToken {
   }
 
   getType() {
-    return Token.variableType;
+    return this.variableType;
+  }
+}
+
+class VariableToken extends Token {
+  /**
+   * @param {string} value
+   */
+  constructor(value) {
+    super(value, /^[A-Za-z_]+\d*[A-Za-z_]*$/);
+  }
+
+  getType() {
+    return this.variableType;
   }
 }
 
@@ -56,7 +71,7 @@ class NumericToken extends Token {
   }
 
   getType() {
-    return Token.digitType;
+    return this.digitType;
   }
 }
 
@@ -64,12 +79,25 @@ class StringToken extends Token {
   /**
    * @param {string} value
    */
-   constructor(value) {
+  constructor(value) {
     super(value, /^\'{1,1}[\w\W\s]+\'{1,1}$/g);
   }
 
   getType() {
-    return Token.stringType;
+    return this.stringType;
+  }
+}
+
+class BooleanToken extends Token {
+  /**
+   * @param {string} value
+   */
+  constructor(value) {
+    super(value, /^(true|false|TRUE|FALSE)$/);
+  }
+
+  getType() {
+    return this.boolToken;
   }
 }
 
@@ -77,82 +105,110 @@ class OperatorToken extends Token {
   /**
    * @param {string} value
    */
-   constructor(value) {
+  constructor(value) {
     super(value, /^(\+|\-|\/|\*|\=){1,1}$/g);
   }
 
   getType() {
-    return Token.operatorType;
+    return this.operatorType;
+  }
+}
+
+class DataTypeToken extends Token {
+  /**
+   * @paran {string} value
+   */
+  constructor(value) {
+    super(value, /^(int|string|bool)$/);
+  }
+
+  getType() {
+    return this.dataTypeType;
   }
 }
 
 class TinyLexer {
-  static skipChar = /^\s{1,}$/;
-
   constructor() {
-    this.varMatcher = new Token('');
-
     this.matchers = [
+      new DataTypeToken(''),
+      new BooleanToken(''),
+      new OperatorToken(''),
+      new VariableToken(''),
       new NumericToken(''),
       new StringToken(''),
-      new OperatorToken(''),
     ];
+
+    this.skipChar = /\s{1,}/;
   }
 
   /**
    * @param {string} sourceCodeLine
    */
   analyze(sourceCodeLine) {
-    for (const char of sourceCodeLine) {
-      if (TinyLexer.skipChar.test(char)) {
+    let char = '';
+    let charOffset = '';
+
+    for (
+      let charIndex = 0;
+      charIndex < sourceCodeLine.length;
+      charIndex += 1
+    ) {
+      char = sourceCodeLine.charAt(charIndex);
+
+      if (charIndex === (sourceCodeLine.length - 1)) {
+        charOffset = charOffset.concat(char);
+
+        this.inspectCharOffset(charOffset);
+      }
+
+      if (!this.skipChar.test(char)) {
+        charOffset = charOffset.concat(char);
+
         continue;
       }
 
-      this.inspectChar(char);
+      this.inspectCharOffset(charOffset);
+
+      charOffset = '';
     }
   }
 
   /**
-   * @param {string} char
+   * @param {string} charOffset
    */
-  inspectChar(char) {
-    this.varMatcher.setValue(char);
-
-    if (this.varMatcher.assert()) {
-      this.printChar(char, this.varMatcher.getType());
-
-      return;
-    }
+  inspectCharOffset(charOffset) {
+    let isMatcherAsserted = false;
 
     /** @constant {Token} matcher */
     for (const matcher of this.matchers) {
-      matcher.setValue(matcher);
+      matcher.setValue(charOffset);
 
-      if (matcher.assert()) {
-        this.printChar(char, matcher.getType());
+      if (isMatcherAsserted) {
+        return;
       }
+
+      if (!matcher.assert()) {
+        continue;
+      }
+
+      matcher.print();
+
+      this.printCharOffset(
+        charOffset,
+        matcher.getType(),
+      );
+
+      isMatcherAsserted = true;
     }
   }
 
   /**
-   * @param {string} char
+   * @param {string} charOffset
    * @param {string} type
    */
-  printChar(char, type) {
-    console.log(`Character ${char} is from a ${type}`);
+  printCharOffset(charOffset, type) {
+    console.log(`Character Offset ${charOffset} is ${type}`);
   }
-}
-
-const lexer = new TinyLexer();
-
-lexer.analyze('a + b = c');
-
-class AbstractExpression {
-
-}
-
-class Expression extends AbstractExpression {
-
 }
 
 /**
@@ -163,11 +219,9 @@ class Expression extends AbstractExpression {
  * + (operator)
  * b (variable)
  * = (operator)
- * c (variable
- *
- * Expression
- *
- * (a + b) = c
- * a + b => sum
- * sum = c => assigment
+ * c (variable)
  */
+
+const lexer = new TinyLexer();
+
+lexer.analyze('bool a = true');
