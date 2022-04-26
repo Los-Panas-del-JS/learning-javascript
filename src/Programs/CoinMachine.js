@@ -79,7 +79,7 @@ class TwoCoin extends AbstractCoin {
 
 class FiveCoin extends AbstractCoin {
   static get fixedValue() {
-    return 10;
+    return 5;
   }
 
   constructor() {
@@ -97,16 +97,28 @@ class TenCoin extends AbstractCoin {
   }
 }
 
-class CoinNotFoundError extends Error {
+class AbstractError extends Error {
+  print() {
+    console.log(`${this.constructor}: ${this.message}`);
+  }
+}
+
+class CoinNotFoundError extends AbstractError {
   /**
    * @param {number} coinValue
    */
   constructor(coinValue) {
     super(`The coin with value ${coinValue} cannot be generated`);
   }
+}
 
-  print() {
-    console.log(`${this.constructor}: ${this.message}`);
+class MaxAvailableOverflowError extends AbstractError {
+  /**
+   * @param {number} maxAvailable
+   * @param {number} ammount
+   */
+  constructor(maxAvailable, ammount) {
+    super(`I can't give you change cause my money available is ${maxAvailable} and you insert ${ammount}`);
   }
 }
 
@@ -130,7 +142,7 @@ class CoinFactory {
    * @throws {CoinNotFoundError}
    */
   static build(coinValue) {
-    if (!CoinFactory.fixedValue.includes(coinValue)) {
+    if (!CoinFactory.validCoins.includes(coinValue)) {
       throw new CoinNotFoundError(coinValue);
     }
 
@@ -140,7 +152,7 @@ class CoinFactory {
     );
 
     /** @var {AbstractCoin} coin */
-    let coin = NullCoin();
+    let coin = new NullCoin();
 
     if (coinValue === OneCoin.fixedValue) {
       coin = new OneCoin();
@@ -159,6 +171,8 @@ class CoinFactory {
     }
 
     coin.setQuantity(coinRandomQuantity);
+
+    console.log(`CoinFactory: Generating ${coin.getQuantity()} coins of ${coin.getCoinValue()}`);
 
     return coin;
   }
@@ -214,7 +228,7 @@ class ExchangeResult {
       resultIndex += 1
     ) {
       /** @constant {ExchangeCoinResult} coinResult */
-      const coinResult = this.coinResults.at(resultIndex);
+      const coinResult = this.coinResults[resultIndex];
 
       coinResult.persist();
       coinResult.print();
@@ -223,10 +237,15 @@ class ExchangeResult {
 }
 
 class CoinStrategy {
+  constructor() {
+    /** @property {AbstractCoin[]} coins */
+    this.coins = [];
+  }
+
   /**
    * @param {AbstractCoin[]} coins
    */
-  constructor(coins) {
+  setCoins(coins) {
     this.coins = coins;
   }
 
@@ -273,12 +292,46 @@ class CoinStrategy {
   }
 }
 
+class CoinAggregator {
+  constructor() {
+    /** @property {AbstractCoin[]} coins */
+    this.coins = [];
+  }
+
+  /**
+   * @param {AbstractCoin} coin
+   */
+  addCoin(coin) {
+    this.coins.push(coin);
+  }
+
+  /**
+   * @returns {number}
+   */
+  aggregate() {
+    let maxMoneyAvailable = 0;
+
+    for (
+      let coinIndex = 0;
+      coinIndex < this.coins.length;
+      coinIndex += 1
+    ) {
+      /** @constant {AbstractCoin} coin */
+      const coin = this.coins[coinIndex];
+
+      maxMoneyAvailable += coin.maxAvailable;
+    }
+
+    return maxMoneyAvailable;
+  }
+}
+
 class CoinMachine {
   constructor() {
     /** @property {AbstractCoin[]} coins */
     this.coins = [];
-
-    this.strategy = new CoinStrategy(this.coins);
+    this.strategy = new CoinStrategy();
+    this.aggregator = new CoinAggregator();
   }
 
   /**
@@ -287,6 +340,8 @@ class CoinMachine {
    */
   addCoin(coin) {
     this.coins.push(coin);
+    this.aggregator.addCoin(coin);
+    this.strategy.setCoins(this.coins);
 
     return this;
   }
@@ -303,8 +358,15 @@ class CoinMachine {
 
   /**
    * @param {number} ammount
+   * @throws {MaxAvailableOverflowError}
    */
   exchange(ammount) {
+    const maxAvailable = this.aggregator.aggregate();
+
+    if (ammount > maxAvailable) {
+      throw new MaxAvailableOverflowError(maxAvailable, ammount);
+    }
+
     /** @constant {ExchangeResult} exchangeResult */
     const exchangeResult = this.strategy.apply(ammount);
 
@@ -314,4 +376,5 @@ class CoinMachine {
 
 const machine = new CoinMachine();
 
-machine.exchange(43);
+machine.fill();
+machine.exchange(99999);
